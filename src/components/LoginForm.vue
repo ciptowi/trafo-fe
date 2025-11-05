@@ -1,72 +1,101 @@
 <script setup lang="ts">
-import { reactive } from "vue";
 import Card from "primevue/card";
 import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import InputGroup from "primevue/inputgroup";
 import InputGroupAddon from "primevue/inputgroupaddon";
+import Message from "primevue/message";
 import Button from "primevue/button";
+import useValidation from "../utils/zod-validation";
+import type { LoginField } from "../types/auth-type";
+import { ref } from "vue";
+import { z } from "zod";
+import { requiredString } from "../utils/zod-helper";
 
-type LoginField = {
-  username: string;
-  password: string;
-};
+const emit = defineEmits<{ (e: "submit"): void }>();
+const form = defineModel<LoginField>({ required: true });
 
-const form = reactive<LoginField>({
-  username: "",
-  password: "",
+const showPass = ref(false);
+
+const validationSchema = z.object({
+  username: requiredString("Username"),
+  password: requiredString("Password"),
 });
 
-const onSubmit = async () => {
-  const formData = new URLSearchParams();
-  formData.append("username", form.username);
-  formData.append("password", form.password);
+const { validate, isValid, getError } = useValidation(validationSchema, form, {
+  mode: "lazy",
+});
 
-  const response = await fetch("http://127.0.0.1:8000/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: formData,
+const submitForm = () => {
+  validate().then(() => {
+    if (isValid.value) emit("submit");
   });
-
-  const data = await response.json();
-  console.log(data);
 };
 </script>
 
 <template>
-  <div class="flex justify-center items-center h-screen">
-    <Card class="w-1/3 shadow-2xl border border-gray-200">
-      <template #title>Login</template>
-      <template #content>
-        <form @submit.prevent="onSubmit">
-          <div class="flex flex-col space-y-4">
+  <Card class="w-1/3 shadow-2xl border border-gray-200">
+    <template #title>
+      <div class="text-center text-2xl">Login</div>
+    </template>
+
+    <template #content>
+      <div class="h-14 py-auto">
+        <Message
+          v-if="form.errorMessage"
+          size="small"
+          severity="error"
+          class="h-6"
+        >
+          {{ form.errorMessage }}
+        </Message>
+      </div>
+
+      <form class="flex flex-col space-y-4" @submit.prevent="submitForm">
+        <div>
+          <FloatLabel variant="on">
+            <InputText
+              id="username"
+              v-model="form.username"
+              :class="{ 'p-invalid': !!getError('username') }"
+              class="w-full"
+            />
+            <label for="username">Username</label>
+          </FloatLabel>
+          <Message severity="error" size="small" variant="simple" class="h-4">
+            {{ getError("username") }}
+          </Message>
+        </div>
+
+        <div>
+          <InputGroup>
             <FloatLabel variant="on">
-              <InputText id="username" v-model="form.username" class="w-full" />
-              <label for="username">Username</label>
+              <InputText
+                id="password"
+                v-model="form.password"
+                :type="showPass ? 'text' : 'password'"
+                :class="{ 'p-invalid': !!getError('password') }"
+                class="w-full"
+              />
+              <label for="password">Password</label>
             </FloatLabel>
+            <InputGroupAddon
+              class="cursor-pointer"
+              @click="showPass = !showPass"
+            >
+              <i v-if="showPass" class="pi pi-eye"></i>
+              <i v-else class="pi pi-eye-slash"></i>
+            </InputGroupAddon>
+          </InputGroup>
+          <Message severity="error" size="small" variant="simple" class="h-4">
+            {{ getError("password") }}
+          </Message>
+        </div>
 
-            <InputGroup>
-              <FloatLabel variant="on">
-                <InputText
-                  id="password"
-                  v-model="form.password"
-                  class="w-full rounded-2xl"
-                />
-                <label for="password">Password</label>
-              </FloatLabel>
-              <InputGroupAddon>
-                <i class="pi pi-eye"></i>
-              </InputGroupAddon>
-            </InputGroup>
-          </div>
-
-          <div class="block pt-6">
-            <Button type="submit" class="w-full" rounded label="LOGIN" />
-          </div>
-        </form>
-      </template>
-    </Card>
-  </div>
+        <div class="block mt-8">
+          <Button type="submit" class="w-full" rounded label="LOGIN" />
+        </div>
+      </form>
+    </template>
+  </Card>
 </template>

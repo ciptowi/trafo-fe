@@ -2,6 +2,8 @@ import { createApp } from "vue";
 import "./style.css";
 import App from "./App.vue";
 
+import { Form } from "@primevue/forms";
+
 import PrimeVue from "primevue/config";
 import "primeicons/primeicons.css";
 
@@ -27,6 +29,7 @@ const MyPreset = definePreset(Aura, {
 });
 
 import Button from "primevue/button";
+import { router } from "./router";
 
 const app = createApp(App);
 
@@ -40,5 +43,6 @@ app.use(PrimeVue, {
 });
 
 app.component("Button", Button);
-
+app.component("Form", Form);
+app.use(router);
 app.mount("#app");
