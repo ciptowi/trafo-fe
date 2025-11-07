@@ -1,4 +1,5 @@
-import { getAuth } from "../utils/auth-storage";
+import { router } from "../router";
+import { getAuth, removeAuth } from "../utils/auth-storage";
 
 export type HttpMethod = "GET" | "POST";
 
@@ -49,6 +50,12 @@ class BaseClient {
 
     if (!response.ok) {
       let errorMsg = `${response.status} ${response.statusText}`;
+
+      if (response.status === 401 && response.statusText === "Unauthorized") {
+        removeAuth();
+        router.push({ name: "login", query: { message: errorMsg } });
+      }
+
       try {
         const err = await response.json();
         errorMsg = err.message || errorMsg;
@@ -88,6 +95,12 @@ class BaseClient {
 
     if (!response.ok) {
       let errorMsg = `${response.status} ${response.statusText}`;
+
+      if (response.status === 401 && response.statusText === "Unauthorized") {
+        removeAuth();
+        router.push({ name: "login", query: { message: errorMsg } });
+      }
+
       try {
         const err = await response.json();
         errorMsg = err.message || errorMsg;

@@ -13,6 +13,7 @@ class TrafoMapper {
       phasa: data.phase,
       longitude: data.longitude,
       latitude: data.latitude,
+      group_id: data.group_id,
     };
   }
 }

@@ -13,6 +13,11 @@ const routes = [
     component: () => import("./pages/TrafoPage.vue"),
   },
   {
+    path: "/trafo-group",
+    name: "trafo group",
+    component: () => import("./pages/TrafoGroupPage.vue"),
+  },
+  {
     path: "/login",
     name: "login",
     component: () => import("./pages/LoginPage.vue"),

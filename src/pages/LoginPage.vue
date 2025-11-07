@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import LoginForm from "../components/LoginForm.vue";
 import type { LoginField } from "../types/auth-type";
-import { reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { authService } from "../service/auth-service";
+import { useRoute } from "vue-router";
 
 const formElement = ref<InstanceType<typeof LoginForm>>();
+const route = useRoute();
 
 const form = reactive<LoginField>({
   username: "",
@@ -15,6 +17,12 @@ const form = reactive<LoginField>({
 const submit = () => {
   authService.login(form);
 };
+
+onMounted(() => {
+  if (route.query.message) {
+    form.errorMessage = route.query.message as string;
+  }
+});
 </script>
 
 <template>

@@ -14,6 +14,7 @@ export type SaveTrafoReq = {
   phasa: string;
   longitude: number | null;
   latitude: number | null;
+  group_id: number | null;
 };
 export type MainTrafoReq = { q: string | null; page: number; size: number };
 
@@ -30,6 +31,7 @@ export type RowTrafoRes = {
   longitude: number;
   latitude: number;
   id: number;
+  group_id: number;
 };
 
 class TrafoApi {

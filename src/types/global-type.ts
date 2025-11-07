@@ -10,3 +10,5 @@ export type BaseResponsePagination<T> = BaseResponse<T> & {
   totalElement: number;
   totalPage: number;
 };
+
+export type Combobox = { id: number; name: string };

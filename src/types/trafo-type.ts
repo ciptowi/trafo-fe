@@ -9,4 +9,5 @@ export type TrafoModel = {
   capacity: number | null;
   latitude: number | null;
   longitude: number | null;
+  group_id: number | null;
 };

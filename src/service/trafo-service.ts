@@ -33,10 +33,10 @@ class TrafoService {
     }
   }
 
-  async update(id: number, data: TrafoModel) {
+  async update(data: TrafoModel) {
     try {
       const result = await trafoApi.update(
-        id,
+        data.id,
         trafoMapper.setPayloadSave(data)
       );
       return result;
