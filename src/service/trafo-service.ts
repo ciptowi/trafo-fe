@@ -16,7 +16,10 @@ class TrafoService {
   async findAll(param: MainTrafoReq) {
     try {
       const result = await trafoApi.findAll(param);
-      return result.data;
+      return {
+        data: result.data,
+        total: result.pagination.totalRecords,
+      };
     } catch (error) {
       const e = error as Error;
       throw new Error(e.message);

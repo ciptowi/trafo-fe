@@ -106,6 +106,7 @@ function handleDelete() {
     v-if="props.use == 'create'"
     label="Add New Trafo Group"
     icon="pi pi-plus"
+    rounded
     @click="resetForm(true)"
   />
 
@@ -113,6 +114,7 @@ function handleDelete() {
     v-if="props.use == 'update'"
     icon="pi pi-pen-to-square"
     severity="warn"
+    size="small"
     rounded
     aria-label="Edit Trafo Group"
     @click="getDetailTrafoGroup"
@@ -122,6 +124,7 @@ function handleDelete() {
     v-if="props.use == 'delete'"
     icon="pi pi-trash"
     severity="danger"
+    size="small"
     rounded
     aria-label="Delete"
     @click="handleDelete"

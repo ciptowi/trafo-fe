@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { FloatLabel, InputNumber, Message } from "primevue";
+import {
+  FloatLabel,
+  InputGroup,
+  InputGroupAddon,
+  InputNumber,
+  Message,
+} from "primevue";
 
 defineProps<{
   label: string;
@@ -14,22 +20,22 @@ const model = defineModel<number | null>({ required: true });
 </script>
 
 <template>
-  <div>
+  <InputGroup>
+    <InputGroupAddon v-if="prefix"> {{ prefix }} </InputGroupAddon>
     <FloatLabel variant="on">
       <InputNumber
         v-model="model"
         :inputId="name"
         :minFractionDigits="minDecimalDigits"
         :maxFractionDigits="maxDecimalDigits"
-        :prefix="prefix"
-        :suffix="suffix"
         fluid
         :class="{ 'p-invalid': !!error(name) }"
       />
       <label :for="name">{{ label }}</label>
     </FloatLabel>
-    <Message severity="error" size="small" variant="simple" class="h-4">
-      {{ error(name) }}
-    </Message>
-  </div>
+    <InputGroupAddon v-if="suffix"> {{ suffix }} </InputGroupAddon>
+  </InputGroup>
+  <Message severity="error" size="small" variant="simple" class="h-4">
+    {{ error(name) }}
+  </Message>
 </template>

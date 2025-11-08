@@ -18,7 +18,10 @@ class TrafoGroupService {
   async findAll(param: MainTrafoGroupReq) {
     try {
       const result = await trafoGroupApi.findAll(param);
-      return result.data;
+      return {
+        data: result.data,
+        total: result.pagination.totalRecords,
+      };
     } catch (error) {
       const e = error as Error;
       throw new Error(e.message);

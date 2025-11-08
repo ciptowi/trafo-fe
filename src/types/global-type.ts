@@ -5,9 +5,13 @@ export type BaseResponse<T> = {
 };
 
 export type BaseResponsePagination<T> = BaseResponse<T> & {
+  pagination: BasePagination;
+};
+
+export type BasePagination = {
   page: number;
   size: number;
-  totalElement: number;
+  totalRecords: number;
   totalPage: number;
 };
 

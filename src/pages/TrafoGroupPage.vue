@@ -1,22 +1,45 @@
 <script setup lang="ts">
 import Header from "../components/Header.vue";
 import TrafoGroupControl from "../components/trafo/TrafoGroupControl.vue";
+import PaginationControl from "../components/app/PaginationControl.vue";
+import SearchField from "../components/field/SearchField.vue";
+import CardView from "../components/app/CardView.vue";
+import NavigationMenu from "../components/NavigationMenu.vue";
 import type { RowTrafoGroupRes } from "../api/trafo-group-api";
-import { Card, Toolbar, DataTable, Column } from "primevue";
-import { onMounted, ref } from "vue";
+import { DataTable, Column } from "primevue";
+import { onMounted, reactive, ref } from "vue";
 import { trafoGroupService } from "../service/trafo-group-service";
+import { useAlert } from "../utils/toast-helper";
 
-const products = ref<RowTrafoGroupRes[]>([]);
+const alert = useAlert();
 
-async function getDataTable() {
+const tableRows = ref<RowTrafoGroupRes[]>([]);
+const pagination = reactive({
+  page: 0,
+  first: 0,
+  totalRecords: 0,
+});
+
+async function getDataTable(keyword?: string) {
   try {
     const result = await trafoGroupService.findAll({
-      q: null,
-      page: 0,
+      q: keyword || null,
+      page: pagination.page,
       size: 10,
     });
-    products.value = result;
-  } catch (error) {}
+    tableRows.value = result.data;
+    pagination.totalRecords = result.total;
+  } catch (e) {
+    alert.error(e as string);
+  }
+}
+
+function eventSearch(keyword?: string) {
+  if (keyword) {
+    pagination.page = 0;
+    pagination.first = 0;
+  }
+  getDataTable(keyword);
 }
 
 onMounted(() => {
@@ -25,23 +48,21 @@ onMounted(() => {
 </script>
 
 <template>
-  <Header title="Trafo Group Management" />
+  <div class="min-h-screen bg-gray-100">
+    <Header title="System Management Gardu Distribusi PT PLN (Persero)" />
+    <NavigationMenu />
 
-  <Toolbar class="rounded-2xl! my-4 mx-4">
-    <template #start>
-      <div class="flex items-center gap-2"></div>
-    </template>
-
-    <template #end>
-      <div class="flex items-center gap-2">
-        <TrafoGroupControl use="create" @created="getDataTable" />
+    <CardView class="my-4">
+      <div class="flex items-center justify-between">
+        <div class="w-1/4">
+          <SearchField @submit="getDataTable" />
+        </div>
+        <TrafoGroupControl use="create" @created="eventSearch" />
       </div>
-    </template>
-  </Toolbar>
+    </CardView>
 
-  <Card class="mx-4 border border-gray-200">
-    <template #content>
-      <DataTable :value="products" tableStyle="min-width: 50rem">
+    <CardView class="mx-4">
+      <DataTable :value="tableRows" tableStyle="min-width: 50rem">
         <template #empty>
           <div class="flex items-center justify-center h-42">
             <div class="text-center">
@@ -52,7 +73,9 @@ onMounted(() => {
         </template>
 
         <Column field="" header="No">
-          <template #body="{ index }"> {{ index + 1 }} </template>
+          <template #body="{ index }">
+            {{ pagination.first + index + 1 }}
+          </template>
         </Column>
         <Column field="name" header="Trafo Group Name"></Column>
         <Column field="kodegrup" header="Group Code"></Column>
@@ -73,6 +96,8 @@ onMounted(() => {
           </template>
         </Column>
       </DataTable>
-    </template>
-  </Card>
+    </CardView>
+
+    <PaginationControl v-model="pagination" @change="getDataTable()" />
+  </div>
 </template>

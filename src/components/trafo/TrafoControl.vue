@@ -125,6 +125,7 @@ function resetForm(isShow = false) {
     v-if="props.use == 'create'"
     label="Add New Trafo"
     icon="pi pi-plus"
+    rounded
     @click="resetForm(true)"
   />
 
@@ -132,6 +133,7 @@ function resetForm(isShow = false) {
     v-if="props.use == 'update'"
     icon="pi pi-pen-to-square"
     severity="warn"
+    size="small"
     rounded
     aria-label="Edit Trafo"
     @click="getDetailTrafo"

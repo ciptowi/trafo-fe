@@ -2,48 +2,76 @@
 import Header from "../components/Header.vue";
 import TrafoControl from "../components/trafo/TrafoControl.vue";
 import SelectField from "../components/field/SelectField.vue";
+import PaginationControl from "../components/app/PaginationControl.vue";
+import SearchField from "../components/field/SearchField.vue";
+import CardView from "../components/app/CardView.vue";
+import NavigationMenu from "../components/NavigationMenu.vue";
 import type { RowTrafoRes } from "../api/trafo-api";
 import type { Combobox } from "../types/global-type";
-import { Button, Card, DataTable, Column } from "primevue";
-import { onMounted, ref } from "vue";
+import { Button, DataTable, Column } from "primevue";
+import { reactive, ref } from "vue";
 import { trafoService } from "../service/trafo-service";
-import { trafoGroupService } from "../service/trafo-group-service";
+import { useAlert } from "../utils/toast-helper";
+import { useRouter } from "vue-router";
 
-const products = ref<RowTrafoRes[]>([]);
+const alert = useAlert();
+const router = useRouter();
+
+const tableRows = ref<RowTrafoRes[]>([]);
 const group = ref<Combobox | null>(null);
+const pagination = reactive({
+  page: 0,
+  first: 0,
+  totalRecords: 0,
+});
 
-async function getDataTable() {
+async function getDataTable(keyword?: string) {
   try {
     const result = await trafoService.findAll({
-      q: null,
-      page: 0,
+      q: keyword || null,
+      groupId: group.value?.id || null,
+      page: pagination.page,
       size: 10,
     });
-    products.value = result;
-  } catch (error) {}
+    tableRows.value = result.data;
+    pagination.totalRecords = result.total;
+  } catch (e) {
+    alert.error(e as string);
+  }
 }
 
-onMounted(() => {
-  trafoGroupService.combobox();
-  getDataTable();
-});
+function eventSearch(keyword?: string) {
+  if (keyword) {
+    pagination.page = 0;
+    pagination.first = 0;
+  }
+  getDataTable(keyword);
+}
 </script>
 
 <template>
-  <Header title="System Management Gardu Distribusi PT PLN (Persero)" />
+  <div class="min-h-screen bg-gray-100">
+    <Header title="System Management Gardu Distribusi PT PLN (Persero)" />
+    <NavigationMenu />
 
-  <Card class="my-4 mx-4 p-0 border border-gray-200">
-    <template #content>
+    <CardView class="m-4">
       <div class="flex items-center justify-between">
-        <div class="w-1/3">
-          <SelectField
-            mounted
-            v-model="group"
-            use="trafo-group"
-            name="group"
-            label="Trafo Group"
-          />
+        <div class="flex items-center justify-between w-1/2 gap-2">
+          <div class="w-1/2">
+            <SelectField
+              mounted
+              v-model="group"
+              use="trafo-group"
+              name="group"
+              label="Trafo Group"
+              @update:model-value="getDataTable()"
+            />
+          </div>
+          <div class="w-1/2">
+            <SearchField v-if="group" @submit="eventSearch" />
+          </div>
         </div>
+
         <TrafoControl
           v-if="group"
           use="create"
@@ -51,12 +79,10 @@ onMounted(() => {
           @created="getDataTable"
         />
       </div>
-    </template>
-  </Card>
+    </CardView>
 
-  <Card class="mx-4 border border-gray-200">
-    <template #content>
-      <DataTable :value="products" tableStyle="min-width: 50rem">
+    <CardView class="mx-4">
+      <DataTable :value="tableRows" tableStyle="min-width: 50rem">
         <template #empty>
           <div class="flex items-center justify-center h-42">
             <div class="text-center">
@@ -67,7 +93,9 @@ onMounted(() => {
         </template>
 
         <Column field="" header="No">
-          <template #body="{ index }"> {{ index + 1 }} </template>
+          <template #body="{ index }">
+            {{ pagination.first + index + 1 }}
+          </template>
         </Column>
         <Column field="name" header="Trafo Name"></Column>
         <Column field="kapasitas" header="Capacity">
@@ -83,13 +111,22 @@ onMounted(() => {
               <Button
                 icon="pi pi-calculator"
                 severity="success"
+                size="small"
                 rounded
                 aria-label="Detail"
+                @click="
+                  router.push({
+                    name: 'trafo detail',
+                    params: { id: data.id },
+                  })
+                "
               />
             </div>
           </template>
         </Column>
       </DataTable>
-    </template>
-  </Card>
+    </CardView>
+
+    <PaginationControl v-model="pagination" @change="getDataTable()" />
+  </div>
 </template>

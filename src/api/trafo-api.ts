@@ -16,7 +16,12 @@ export type SaveTrafoReq = {
   latitude: number | null;
   group_id: number | null;
 };
-export type MainTrafoReq = { q: string | null; page: number; size: number };
+export type MainTrafoReq = {
+  q: string | null;
+  groupId: number | null;
+  page: number;
+  size: number;
+};
 
 type Res<T> = Promise<BaseResponse<T>>;
 type ResPage<T> = Promise<BaseResponsePagination<T>>;
@@ -32,6 +37,7 @@ export type RowTrafoRes = {
   latitude: number;
   id: number;
   group_id: number;
+  group: { id: number; kodegrup: string; name: string };
 };
 
 class TrafoApi {
