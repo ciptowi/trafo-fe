@@ -1,62 +1,60 @@
 <script setup lang="ts">
 import Header from "../components/Header.vue";
-import CardView from "../components/app/CardView.vue";
 import NavigationMenu from "../components/NavigationMenu.vue";
+import TrafoDataCalculate from "../components/trafo/TrafoDataCalculate.vue";
+import TrafoInformation from "../components/trafo/TrafoInformation.vue";
 import { useRoute } from "vue-router";
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { trafoService } from "../service/trafo-service";
 
 const reoute = useRoute();
 
-const owner = reactive({
-  id: 0,
-  name: "",
-});
-const trafoInfo = reactive({
-  Name: "WD15",
-  Phasa: "R",
-  Brand: "Y",
-  Type: "Y",
-  Capacity: "100 KVA",
-  PIC: "Petugas 4",
+const title = ref("System Management Gardu Distribusi PT PLN (Persero)");
+const trafoId = ref(0);
+const trafoCapacity = ref(0);
+const trafoInfo = reactive<Record<string, string>>({
+  Name: "",
+  Phasa: "",
+  Brand: "",
+  Type: "",
+  Capacity: "",
+  PIC: "",
 });
 
-const dataReadings = ref([
-  { key: "Vr", value: "219.8 V" },
-  { key: "Vs", value: "218.2 V" },
-  { key: "Vt", value: "220.2 V" },
-  { key: "Is", value: "98.7 A" },
-  { key: "It", value: "90.8 A" },
-  { key: "It", value: "87.6 A" },
-  { key: "Cosphy", value: "0.89" },
+const trafoReadings = ref([
+  { colspan: 4, vLabel: "DATA" },
+  { vLabel: "Vr", vValue: 219.8, iLabel: "Ir", iValue: 98.7 },
+  { vLabel: "Vs", vValue: 218.2, iLabel: "Is", iValue: 90.8 },
+  { vLabel: "Vt", vValue: 220.2, iLabel: "It", iValue: 87.6 },
+  { colspan: 3, vLabel: "Cosphi", iValue: 0.89 },
 ]);
 
-const calculationData = ref([
-  { name: "Phasa R", KVA: "21.694", KW: "19.308", KVAr: "9.892" },
-  { name: "Phasa S", KVA: "19.813", KW: "17.633", KVAr: "9.034" },
-  { name: "Phasa T", KVA: "19.29", KW: "17.168", KVAr: "8.795" },
+const trafoCalculation = ref([
+  { label: "Phasa R", kva: 21.694, kw: 19.308, kvar: 9.892 },
+  { label: "Phasa S", kva: 19.813, kw: 17.633, kvar: 9.034 },
+  { label: "Phasa T", kva: 19.29, kw: 17.168, kvar: 8.795 },
 ]);
 
-const total = ref({
-  KVA: "60.796",
-  KW: "54.109",
-  KVAr: "27.721",
-});
-
-const cosPhi = "Cosphy 0.89";
+const trafoDataInfo = computed(() =>
+  Object.keys(trafoInfo).map((key) => ({
+    label: key,
+    value: trafoInfo[key] || "",
+  }))
+);
 
 function getTrafoDetail() {
   const id = reoute.params.id?.toString();
-  owner.id = Number(id);
+  trafoId.value = Number(id);
   if (!id) return;
-  trafoService.findOne(owner.id).then((res) => {
-    owner.name = res.group.name;
+  trafoService.findOne(trafoId.value).then((res) => {
+    title.value = `System Management Gardu Distribusi PT PLN (Persero) - ${res.group.name}`;
     trafoInfo.Name = res.name;
     trafoInfo.Phasa = res.phasa;
     trafoInfo.Brand = res.brand;
     trafoInfo.Type = res.type;
     trafoInfo.Capacity = res.kapasitas + " KVA";
-    trafoInfo.PIC = res.group.name;
+    trafoInfo.PIC = "Petugas 1";
+    trafoCapacity.value = res.kapasitas;
   });
 }
 
@@ -67,171 +65,51 @@ onMounted(() => {
 
 <template>
   <div class="min-h-screen bg-gray-100">
-    <Header
-      :title="`System Management Gardu Distribusi PT PLN (Persero) - ${owner.name}`"
-    />
+    <Header :title="title" />
     <NavigationMenu />
 
     <div class="m-4">
       <div
-        class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-8"
+        class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4"
       >
-        <div class="w-full lg:w-1/4">
-          <CardView title="HISTORY" class="mb-4">
-            <div class="h-30">
-              <div class="font-medium text-gray-500 text-xs">
-                2025-07-03 09:59:45
-              </div>
-            </div>
-          </CardView>
-          <CardView title="INFORMATION TRAFOS">
-            <div
-              v-for="(value, key) in trafoInfo"
-              :key="key"
-              class="flex justify-between text-xs py-1"
-            >
-              <span class="font-medium text-gray-500">{{ key }}</span>
-              <span class="font-semibold text-gray-800">{{ value }}</span>
-            </div>
-          </CardView>
+        <div
+          class="w-full lg:w-1/4 flex flex-row lg:flex-col space-x-4 lg:space-x-0 lg:space-y-4"
+        >
+          <TrafoInformation
+            title="HISTORY"
+            :data="[{ label: '2025-07-03 09:59:45', value: '' }]"
+            body-class="h-45"
+          >
+            <template #value>
+              <Button
+                icon="pi pi-angle-right"
+                class="bg-green-300! text-white! hover:bg-green-400! border-0!"
+                size="small"
+              />
+            </template>
+          </TrafoInformation>
+
+          <TrafoInformation title="INFORMATION TRAFOS" :data="trafoDataInfo" />
         </div>
 
         <div
-          class="w-full lg:w-3/4 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4"
+          class="w-full lg:w-3/4 flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4"
         >
-          <CardView
+          <TrafoDataCalculate
             title="LATEST"
             suffix-title="2025-07-03 09:59:45"
-            class="w-full"
-          >
-            <div class="mb-4">
-              <div class="text-xs font-semibold text-gray-600 mb-2">DATA</div>
-              <div
-                class="flex justify-between text-sm py-1 border-b border-gray-100"
-                v-for="({ key, value }, index) in dataReadings"
-                :key="index"
-              >
-                <span class="w-1/3">{{ key }}</span>
-                <span class="w-2/3 text-right font-medium">{{ value }}</span>
-              </div>
-              <div class="flex justify-end text-sm py-1 mt-2">
-                <span class="font-semibold">{{ cosPhi }}</span>
-              </div>
-            </div>
+            :data="trafoReadings"
+            :calculate="trafoCalculation"
+            :capacity="trafoCapacity"
+          />
 
-            <div>
-              <div class="text-xs font-semibold text-gray-600 mb-2">
-                CALCULATE
-              </div>
-              <div
-                class="text-xs grid grid-cols-4 gap-2 font-medium text-gray-500 mb-1"
-              >
-                <span></span>
-                <span class="text-center">KVA</span>
-                <span class="text-center">KW</span>
-                <span class="text-center">KVAr</span>
-              </div>
-
-              <div
-                v-for="(phase, index) in calculationData"
-                :key="index"
-                class="text-sm grid grid-cols-4 gap-2 py-1 bg-gray-50 rounded-sm mb-1"
-              >
-                <span class="font-medium text-gray-700">{{ phase.name }}</span>
-                <span class="text-center">{{ phase.KVA }}</span>
-                <span class="text-center">{{ phase.KW }}</span>
-                <span class="text-center">{{ phase.KVAr }}</span>
-              </div>
-
-              <div
-                class="text-sm grid grid-cols-4 gap-2 py-1 mt-2 font-bold border-t pt-2"
-              >
-                <span>Total</span>
-                <span class="text-center">{{ total.KVA }}</span>
-                <span class="text-center">{{ total.KW }}</span>
-                <span class="text-center">{{ total.KVAr }}</span>
-              </div>
-            </div>
-
-            <div class="mt-4 border-t pt-4">
-              <div class="flex justify-between text-sm font-medium">
-                <span>Sisa Kapasitas Trafo</span>
-                <span
-                  :class="{
-                    'text-green-600 font-bold': true,
-                    'bg-green-100 p-1 rounded': true,
-                  }"
-                >
-                  39.204 KVA (39.2%)
-                </span>
-              </div>
-            </div>
-          </CardView>
-
-          <CardView title="ESTIMATE" class="w-full">
-            <div class="mb-4">
-              <div class="text-xs font-semibold text-gray-600 mb-2">DATA</div>
-              <div
-                class="flex justify-between text-sm py-1 border-b border-gray-100"
-                v-for="({ key, value }, index) in dataReadings"
-                :key="index"
-              >
-                <span class="w-1/3">{{ key }}</span>
-                <span class="w-2/3 text-right font-medium">{{ value }}</span>
-              </div>
-              <div class="flex justify-end text-sm py-1 mt-2">
-                <span class="font-semibold">{{ cosPhi }}</span>
-              </div>
-            </div>
-
-            <div>
-              <div class="text-xs font-semibold text-gray-600 mb-2">
-                CALCULATE
-              </div>
-              <div
-                class="text-xs grid grid-cols-4 gap-2 font-medium text-gray-500 mb-1"
-              >
-                <span></span>
-                <span class="text-center">KVA</span>
-                <span class="text-center">KW</span>
-                <span class="text-center">KVAr</span>
-              </div>
-
-              <div
-                v-for="(phase, index) in calculationData"
-                :key="index"
-                class="text-sm grid grid-cols-4 gap-2 py-1 bg-gray-50 rounded-sm mb-1"
-              >
-                <span class="font-medium text-gray-700">{{ phase.name }}</span>
-                <span class="text-center">{{ phase.KVA }}</span>
-                <span class="text-center">{{ phase.KW }}</span>
-                <span class="text-center">{{ phase.KVAr }}</span>
-              </div>
-
-              <div
-                class="text-sm grid grid-cols-4 gap-2 py-1 mt-2 font-bold border-t pt-2"
-              >
-                <span>Total</span>
-                <span class="text-center">{{ total.KVA }}</span>
-                <span class="text-center">{{ total.KW }}</span>
-                <span class="text-center">{{ total.KVAr }}</span>
-              </div>
-            </div>
-
-            <div class="mt-4 border-t pt-4">
-              <div class="flex justify-between text-sm font-medium">
-                <span>Sisa Kapasitas Trafo</span>
-                <span
-                  :class="{
-                    'text-green-600 font-bold': true,
-                    'bg-green-100 p-1 rounded': true,
-                  }"
-                >
-                  39.204 KVA (39.2%)
-                </span>
-              </div>
-            </div>
-          </CardView>
+          <TrafoDataCalculate
+            title="ESTIMATE"
+            is-color
+            :data="trafoReadings"
+            :calculate="trafoCalculation"
+            :capacity="trafoCapacity"
+          />
         </div>
       </div>
     </div>
