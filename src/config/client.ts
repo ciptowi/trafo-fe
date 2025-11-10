@@ -36,7 +36,7 @@ class BaseClient {
       method,
       headers: {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(token ? { Authorization: token } : {}),
         ...headers,
       },
       ...rest,
@@ -84,7 +84,7 @@ class BaseClient {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(token ? { Authorization: token } : {}),
         ...headers,
       },
       body,
