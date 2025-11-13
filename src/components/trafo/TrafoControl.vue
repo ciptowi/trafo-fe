@@ -2,7 +2,6 @@
 import { reactive, ref } from "vue";
 import { Button, Dialog } from "primevue";
 import { trafoService } from "../../service/trafo-service";
-import { useAlert } from "../../utils/toast-helper";
 import { requiredNumber, requiredString } from "../../utils/zod-helper";
 import { z } from "zod";
 import type { TrafoModel } from "../../types/trafo-type";
@@ -13,6 +12,7 @@ import NumberField from "../field/NumberField.vue";
 import MaskField from "../field/MaskField.vue";
 import TextField from "../field/TextField.vue";
 import RadioButtonField from "../field/RadioButtonField.vue";
+import { usePopup } from "../app/dialog-state";
 
 const emit = defineEmits<{
   (e: "updated"): void;
@@ -23,7 +23,6 @@ const props = defineProps<{
   group?: Combobox | null;
   data?: RowTrafoRes;
 }>();
-const alert = useAlert();
 
 const visible = ref(false);
 const form = reactive<TrafoModel>({
@@ -62,27 +61,27 @@ function submitForm() {
       validate().then(() => {
         if (!isValid.value) return;
         form.group_id = props.group?.id || null;
-        trafoService
-          .save(form)
-          .then(() => {
-            visible.value = false;
-            alert.success("Trafo saved successfully");
-            emit("created");
-          })
-          .catch((e) => alert.error(e));
+        trafoService.save(form).then(() => {
+          visible.value = false;
+          usePopup({
+            type: "success",
+            message: "Trafo saved successfully",
+          });
+          emit("created");
+        });
       });
       break;
     case "update":
       validate().then(() => {
         if (!isValid.value) return;
-        trafoService
-          .update(form)
-          .then(() => {
-            visible.value = false;
-            alert.success("Trafo updated successfully");
-            emit("updated");
-          })
-          .catch((e) => alert.error(e));
+        trafoService.update(form).then(() => {
+          visible.value = false;
+          usePopup({
+            type: "success",
+            message: "Trafo updated successfully",
+          });
+          emit("updated");
+        });
       });
       break;
   }
@@ -90,14 +89,25 @@ function submitForm() {
 
 function getDetailTrafo() {
   if (!props.data) return;
+
+  // pattern for voltage and current (4 digits)
+  const voltagePattern = new Intl.NumberFormat("id-ID", {
+    minimumIntegerDigits: 4,
+    useGrouping: false,
+  }).format(props.data.voltase);
+  const currentPattern = new Intl.NumberFormat("id-ID", {
+    minimumIntegerDigits: 4,
+    useGrouping: false,
+  }).format(props.data.current);
+
   visible.value = true;
   form.id = props.data.id;
   form.name = props.data.name;
   form.phase = props.data.phasa;
   form.brand = props.data.brand;
   form.type = props.data.type;
-  form.voltage = props.data.voltase.toString();
-  form.current = props.data.current.toString();
+  form.voltage = `${voltagePattern}:${props.data.voltase_per}`;
+  form.current = `${currentPattern}:${props.data.current_per}`;
   form.capacity = props.data.kapasitas;
   form.latitude = props.data.latitude;
   form.longitude = props.data.longitude;
@@ -181,16 +191,16 @@ function resetForm(isShow = false) {
           v-model="form.voltage"
           label="Voltage (VT)"
           name="voltage"
-          mask="9:9"
-          placeholder="1:1"
+          mask="9999:9"
+          placeholder="____:_"
           :error="getError"
         />
         <MaskField
           v-model="form.current"
           label="Current (CT)"
           name="current"
-          mask="9:9"
-          placeholder="1:1"
+          mask="9999:9"
+          placeholder="____:_"
           :error="getError"
         />
       </div>

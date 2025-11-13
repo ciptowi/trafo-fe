@@ -9,9 +9,6 @@ import type { RowTrafoGroupRes } from "../api/trafo-group-api";
 import { DataTable, Column } from "primevue";
 import { onMounted, reactive, ref } from "vue";
 import { trafoGroupService } from "../service/trafo-group-service";
-import { useAlert } from "../utils/toast-helper";
-
-const alert = useAlert();
 
 const tableRows = ref<RowTrafoGroupRes[]>([]);
 const pagination = reactive({
@@ -21,17 +18,13 @@ const pagination = reactive({
 });
 
 async function getDataTable(keyword?: string) {
-  try {
-    const result = await trafoGroupService.findAll({
-      q: keyword || null,
-      page: pagination.page,
-      size: 10,
-    });
-    tableRows.value = result.data;
-    pagination.totalRecords = result.total;
-  } catch (e) {
-    alert.error(e as string);
-  }
+  const result = await trafoGroupService.findAll({
+    q: keyword || null,
+    page: pagination.page,
+    size: 10,
+  });
+  tableRows.value = result.data;
+  pagination.totalRecords = result.total;
 }
 
 function eventSearch(keyword?: string) {

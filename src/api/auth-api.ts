@@ -9,7 +9,7 @@ type LoginRes = { access_token: string; token_type: string } | null;
 class AuthApi {
   async login({ username, password }: LoginReq) {
     const data = { username, password };
-    return await client.post<Res<LoginRes>>("/login", data);
+    return await client.postNoPopup<Res<LoginRes>>("/login", data);
   }
 }
 

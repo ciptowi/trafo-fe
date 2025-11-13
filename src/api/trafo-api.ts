@@ -8,10 +8,12 @@ export type SaveTrafoReq = {
   name: string;
   type: string;
   brand: string;
-  kapasitas: number | null;
-  voltase: number | null;
-  current: number | null;
+  voltase: number;
+  current: number;
+  voltase_per: number;
+  current_per: number;
   phasa: string;
+  kapasitas: number | null;
   longitude: number | null;
   latitude: number | null;
   group_id: number | null;
@@ -31,7 +33,9 @@ export type RowTrafoRes = {
   brand: string;
   kapasitas: number;
   voltase: number;
+  voltase_per: number;
   current: number;
+  current_per: number;
   phasa: string;
   longitude: number;
   latitude: number;

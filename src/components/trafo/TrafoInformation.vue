@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
-
-export type InfoRow = { label: string; value: number | string };
+import type { InformationRow } from "../../types/calculation-type";
 
 defineProps<{
-  data: InfoRow[];
+  data: InformationRow[];
   title?: string;
   suffixTitle?: string;
   class?: HTMLAttributes["class"];

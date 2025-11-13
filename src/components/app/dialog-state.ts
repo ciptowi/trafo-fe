@@ -14,10 +14,10 @@ type DialogConfig = {
   btnCancelText?: string;
   btnCancelColor?: string;
 };
-type Alert = Dialog & { type: "error" | "success" | "recovery" };
+type Alert = Dialog & { type: "error" | "success" };
 type AlertProp = {
   message: string;
-  type?: "error" | "success" | "recovery";
+  type?: "error" | "success";
   redirect?: RouteLocationRaw;
 };
 
@@ -67,12 +67,7 @@ export const confirmAction = (confirmed: boolean) => {
 };
 
 export const usePopup = async (prop: AlertProp) => {
-  alert.title =
-    prop.type === "error"
-      ? "Terjadi Kesalahan"
-      : prop.type === "recovery"
-      ? "Proses Recovery Data"
-      : "Berhasil";
+  alert.title = prop.type === "error" ? "Something bad happened" : "Success";
   alert.message = prop.message;
   alert.type = prop.type || "success";
   alert.visible = true;
@@ -84,7 +79,7 @@ export const usePopup = async (prop: AlertProp) => {
         if (prop.redirect) {
           router.push(prop.redirect);
         }
-      }, 800);
+      }, 1200);
     }
   });
 };

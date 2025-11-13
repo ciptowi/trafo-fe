@@ -2,14 +2,13 @@
 import { Button, Dialog } from "primevue";
 import { reactive, ref } from "vue";
 import { requiredString } from "../../utils/zod-helper";
-import { useAlert } from "../../utils/toast-helper";
 import { trafoGroupService } from "../../service/trafo-group-service";
 import { z } from "zod";
 import type { TrafoGroupModel } from "../../types/trafo-group-type";
 import type { RowTrafoGroupRes } from "../../api/trafo-group-api";
 import useValidation from "../../utils/zod-validation";
 import TextField from "../field/TextField.vue";
-import { useConfirmation } from "../app/dialog-state";
+import { useConfirmation, usePopup } from "../app/dialog-state";
 
 const emit = defineEmits<{
   (e: "updated"): void;
@@ -20,8 +19,6 @@ const props = defineProps<{
   use: "create" | "update" | "delete";
   data?: RowTrafoGroupRes;
 }>();
-
-const alert = useAlert();
 
 const visible = ref(false);
 const form = reactive<TrafoGroupModel>({
@@ -43,24 +40,24 @@ function submitForm() {
   validate().then(() => {
     if (isValid.value) {
       if (props.use == "create") {
-        trafoGroupService
-          .save(form)
-          .then(() => {
-            alert.success("Trafo Group saved successfully");
-            visible.value = false;
-            emit("created");
-          })
-          .catch((e) => alert.error(e));
+        trafoGroupService.save(form).then(() => {
+          usePopup({
+            type: "success",
+            message: "Trafo Group saved successfully",
+          });
+          visible.value = false;
+          emit("created");
+        });
       }
       if (props.use == "update") {
-        trafoGroupService
-          .update(form.id, form)
-          .then(() => {
-            alert.success("Trafo Group updated successfully");
-            visible.value = false;
-            emit("updated");
-          })
-          .catch((e) => alert.error(e));
+        trafoGroupService.update(form.id, form).then(() => {
+          usePopup({
+            type: "success",
+            message: "Trafo Group updated successfully",
+          });
+          visible.value = false;
+          emit("updated");
+        });
       }
     }
   });
@@ -94,7 +91,11 @@ function handleDelete() {
   }).then((ok) => {
     if (!ok) return;
     trafoGroupService.delete(id).then(() => {
-      alert.success("Trafo Group deleted successfully");
+      usePopup({
+        type: "success",
+        message: "Trafo Group deleted successfully",
+      });
+      visible.value = false;
       emit("deleted");
     });
   });

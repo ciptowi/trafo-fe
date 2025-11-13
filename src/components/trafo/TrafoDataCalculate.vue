@@ -1,55 +1,20 @@
 <script setup lang="ts">
-import { computed, ref, type HTMLAttributes } from "vue";
+import { type HTMLAttributes } from "vue";
+import type {
+  CalculateRow,
+  ReadingRow,
+  RestCapacity,
+} from "../../types/calculation-type";
 
-export type ReadingRow = {
-  vLabel?: string;
-  vValue?: number;
-  iLabel?: string;
-  iValue?: number;
-  colspan?: number;
-};
-export type CalculateRow = {
-  label: string;
-  kva: number;
-  kw: number;
-  kvar: number;
-};
-
-const props = defineProps<{
+defineProps<{
   data: ReadingRow[];
   calculate: CalculateRow[];
-  capacity: number;
+  rest: RestCapacity;
   title?: string;
   suffixTitle?: string;
   class?: HTMLAttributes["class"];
   isColor?: boolean;
 }>();
-
-const restCapacity = ref(0);
-
-const calculateData = computed(() => {
-  const result: CalculateRow[] = [];
-  let totalKva = 0;
-  let totalKw = 0;
-  let totalKvar = 0;
-
-  for (let row of props.calculate) {
-    totalKva += row.kva;
-    totalKw += row.kw;
-    totalKvar += row.kvar;
-    result.push(row);
-  }
-
-  restCapacity.value = props.capacity - totalKva;
-  result.push({
-    label: "TOTAL",
-    kva: totalKva,
-    kw: totalKw,
-    kvar: totalKvar,
-  });
-
-  return result;
-});
 </script>
 
 <template>
@@ -80,11 +45,11 @@ const calculateData = computed(() => {
               <span :class="{ 'text-black': i == 0 }">{{ row.vLabel }}</span>
             </td>
             <td v-if="row.vValue" class="text-right pr-8!">
-              {{ row.vValue }} {{ !row.colspan ? " V" : "" }}
+              {{ row.vValue }}
             </td>
             <td v-if="row.iLabel">{{ row.iLabel }}</td>
             <td v-if="row.iValue" class="text-right pr-8!">
-              {{ row.iValue }} {{ !row.colspan ? " A" : "" }}
+              {{ row.iValue }}
             </td>
           </tr>
         </tbody>
@@ -104,14 +69,14 @@ const calculateData = computed(() => {
         </thead>
         <tbody>
           <tr
-            v-for="(row, i) in calculateData"
+            v-for="(row, i) in calculate"
             :key="i"
             :class="{ 'bg-gray-100': i % 2 != 0 }"
           >
             <td>{{ row.label }}</td>
-            <td class="text-left">{{ row.kva.toFixed(3) }} KVA</td>
-            <td class="text-left">{{ row.kw.toFixed(3) }} KW</td>
-            <td class="text-left">{{ row.kvar.toFixed(3) }} KVAr</td>
+            <td class="text-left">{{ row.kva }}</td>
+            <td class="text-left">{{ row.kw }}</td>
+            <td class="text-left">{{ row.kvar }}</td>
           </tr>
         </tbody>
       </table>
@@ -120,13 +85,13 @@ const calculateData = computed(() => {
         <div class="flex justify-between items-center h-10">
           <span>Sisa Kapasitas Trafo</span>
           <span
+            v-if="rest.capacity && rest.percent"
             :class="{
               'text-green-600 font-bold': isColor,
               'bg-green-100 p-1 rounded': isColor,
             }"
           >
-            {{ restCapacity.toFixed(3) }}
-            KVA ({{ ((restCapacity / props.capacity) * 100).toFixed(2) }}%)
+            {{ rest.capacity }} ({{ rest.percent }})
           </span>
         </div>
       </div>

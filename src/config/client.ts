@@ -1,3 +1,4 @@
+import { usePopup } from "../components/app/dialog-state";
 import { router } from "../router";
 import { getAuth, removeAuth } from "../utils/auth-storage";
 
@@ -6,6 +7,7 @@ export type HttpMethod = "GET" | "POST";
 export interface RequestOptions extends RequestInit {
   params?: Record<string, any>;
   headers?: Record<string, string>;
+  hidePopup?: boolean;
 }
 
 class BaseClient {
@@ -51,7 +53,11 @@ class BaseClient {
     if (!response.ok) {
       let errorMsg = `${response.status} ${response.statusText}`;
 
-      if (response.status === 401 && response.statusText === "Unauthorized") {
+      if (
+        response.status === 401 ||
+        response.status === 403 ||
+        response.statusText === "Unauthorized"
+      ) {
         removeAuth();
         router.push({ name: "login", query: { message: errorMsg } });
       }
@@ -59,6 +65,7 @@ class BaseClient {
       try {
         const err = await response.json();
         errorMsg = err.message || errorMsg;
+        if (!options.hidePopup) usePopup({ type: "error", message: errorMsg });
       } catch {}
       throw new Error(errorMsg);
     }
@@ -83,7 +90,7 @@ class BaseClient {
     const config: RequestInit = {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "multipart/form-data",
         ...(token ? { Authorization: token } : {}),
         ...headers,
       },
@@ -96,7 +103,11 @@ class BaseClient {
     if (!response.ok) {
       let errorMsg = `${response.status} ${response.statusText}`;
 
-      if (response.status === 401 && response.statusText === "Unauthorized") {
+      if (
+        response.status === 401 ||
+        response.status === 403 ||
+        response.statusText === "Unauthorized"
+      ) {
         removeAuth();
         router.push({ name: "login", query: { message: errorMsg } });
       }
@@ -104,6 +115,7 @@ class BaseClient {
       try {
         const err = await response.json();
         errorMsg = err.message || errorMsg;
+        if (!options.hidePopup) usePopup({ type: "error", message: errorMsg });
       } catch {}
       throw new Error(errorMsg);
     }
@@ -121,6 +133,18 @@ class BaseClient {
   }
 
   post<T>(endpoint: string, body?: any, options?: RequestOptions) {
+    return this.request<T>("POST", endpoint, body, options);
+  }
+
+  getNoPopup<T>(endpoint: string, options?: RequestOptions) {
+    options = options || {};
+    options.hidePopup = true;
+    return this.request<T>("GET", endpoint, undefined, options);
+  }
+
+  postNoPopup<T>(endpoint: string, body?: any, options?: RequestOptions) {
+    options = options || {};
+    options.hidePopup = true;
     return this.request<T>("POST", endpoint, body, options);
   }
 

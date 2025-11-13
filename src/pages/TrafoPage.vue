@@ -11,10 +11,8 @@ import type { Combobox } from "../types/global-type";
 import { Button, DataTable, Column } from "primevue";
 import { reactive, ref } from "vue";
 import { trafoService } from "../service/trafo-service";
-import { useAlert } from "../utils/toast-helper";
 import { useRouter } from "vue-router";
 
-const alert = useAlert();
 const router = useRouter();
 
 const tableRows = ref<RowTrafoRes[]>([]);
@@ -26,18 +24,14 @@ const pagination = reactive({
 });
 
 async function getDataTable(keyword?: string) {
-  try {
-    const result = await trafoService.findAll({
-      q: keyword || null,
-      groupId: group.value?.id || null,
-      page: pagination.page,
-      size: 10,
-    });
-    tableRows.value = result.data;
-    pagination.totalRecords = result.total;
-  } catch (e) {
-    alert.error(e as string);
-  }
+  const result = await trafoService.findAll({
+    q: keyword || null,
+    groupId: group.value?.id || null,
+    page: pagination.page,
+    size: 10,
+  });
+  tableRows.value = result.data;
+  pagination.totalRecords = result.total;
 }
 
 function eventSearch(keyword?: string) {

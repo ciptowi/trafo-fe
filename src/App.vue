@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Toast } from "primevue";
-import DialogConfirmation from "./components/app/DialogConfirmation.vue";
+import DialogComponent from "./components/app/DialogComponent.vue";
 </script>
 
 <template>
   <RouterView />
   <Toast />
-  <DialogConfirmation />
+  <DialogComponent />
 </template>

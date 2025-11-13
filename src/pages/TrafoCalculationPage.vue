@@ -4,58 +4,77 @@ import NavigationMenu from "../components/NavigationMenu.vue";
 import TrafoDataCalculate from "../components/trafo/TrafoDataCalculate.vue";
 import TrafoInformation from "../components/trafo/TrafoInformation.vue";
 import { useRoute } from "vue-router";
-import { computed, onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { trafoService } from "../service/trafo-service";
+import { calculationService } from "../service/calculation-service";
+import type {
+  CalculateRow,
+  InformationRow,
+  ReadingRow,
+  RestCapacity,
+} from "../types/calculation-type";
+import TrafoCustomer from "../components/trafo/TrafoCustomer.vue";
 
 const reoute = useRoute();
 
 const title = ref("System Management Gardu Distribusi PT PLN (Persero)");
 const trafoId = ref(0);
 const trafoCapacity = ref(0);
-const trafoInfo = reactive<Record<string, string>>({
-  Name: "",
-  Phasa: "",
-  Brand: "",
-  Type: "",
-  Capacity: "",
-  PIC: "",
+
+const rest = reactive<RestCapacity>({
+  capacity: "",
+  percent: "",
 });
 
-const trafoReadings = ref([
+const trafoHistory = ref<InformationRow[]>([]);
+
+const trafoInfo = ref<InformationRow[]>([
+  { label: "Name", value: "-" },
+  { label: "Phasa", value: "-" },
+  { label: "Brand", value: "-" },
+  { label: "Type", value: "-" },
+  { label: "Capacity", value: "-" },
+  { label: "PIC", value: "-" },
+]);
+
+const trafoReadings = ref<ReadingRow[]>([
   { colspan: 4, vLabel: "DATA" },
-  { vLabel: "Vr", vValue: 219.8, iLabel: "Ir", iValue: 98.7 },
-  { vLabel: "Vs", vValue: 218.2, iLabel: "Is", iValue: 90.8 },
-  { vLabel: "Vt", vValue: 220.2, iLabel: "It", iValue: 87.6 },
-  { colspan: 3, vLabel: "Cosphi", iValue: 0.89 },
+  { vLabel: "Vr", vValue: "-", iLabel: "Ir", iValue: "-" },
+  { vLabel: "Vs", vValue: "-", iLabel: "Is", iValue: "-" },
+  { vLabel: "Vt", vValue: "-", iLabel: "It", iValue: "-" },
+  { colspan: 3, vLabel: "Cosphi", iValue: "-" },
 ]);
 
-const trafoCalculation = ref([
-  { label: "Phasa R", kva: 21.694, kw: 19.308, kvar: 9.892 },
-  { label: "Phasa S", kva: 19.813, kw: 17.633, kvar: 9.034 },
-  { label: "Phasa T", kva: 19.29, kw: 17.168, kvar: 8.795 },
+const trafoCalculation = ref<CalculateRow[]>([
+  { label: "Phasa R", kva: "-", kw: "-", kvar: "-" },
+  { label: "Phasa S", kva: "-", kw: "-", kvar: "-" },
+  { label: "Phasa T", kva: "-", kw: "-", kvar: "-" },
+  { label: "TOTAL", kva: "-", kw: "-", kvar: "-" },
 ]);
-
-const trafoDataInfo = computed(() =>
-  Object.keys(trafoInfo).map((key) => ({
-    label: key,
-    value: trafoInfo[key] || "",
-  }))
-);
 
 function getTrafoDetail() {
   const id = reoute.params.id?.toString();
   trafoId.value = Number(id);
   if (!id) return;
-  trafoService.findOne(trafoId.value).then((res) => {
-    title.value = `System Management Gardu Distribusi PT PLN (Persero) - ${res.group.name}`;
-    trafoInfo.Name = res.name;
-    trafoInfo.Phasa = res.phasa;
-    trafoInfo.Brand = res.brand;
-    trafoInfo.Type = res.type;
-    trafoInfo.Capacity = res.kapasitas + " KVA";
-    trafoInfo.PIC = "Petugas 1";
-    trafoCapacity.value = res.kapasitas;
-  });
+  calculationService
+    .result({
+      id: trafoId.value,
+      capacity: trafoCapacity,
+      title: title,
+      info: trafoInfo,
+      history: trafoHistory,
+      rest: rest,
+      data: trafoReadings,
+      calculate: trafoCalculation,
+    })
+    .catch(() => {
+      trafoService.setInfoDetail({
+        id: trafoId.value,
+        capacity: trafoCapacity,
+        title: title,
+        info: trafoInfo,
+      });
+    });
 }
 
 onMounted(() => {
@@ -77,7 +96,7 @@ onMounted(() => {
         >
           <TrafoInformation
             title="HISTORY"
-            :data="[{ label: '2025-07-03 09:59:45', value: '' }]"
+            :data="trafoHistory"
             body-class="h-45"
           >
             <template #value>
@@ -89,7 +108,7 @@ onMounted(() => {
             </template>
           </TrafoInformation>
 
-          <TrafoInformation title="INFORMATION TRAFOS" :data="trafoDataInfo" />
+          <TrafoInformation title="INFORMATION TRAFOS" :data="trafoInfo" />
         </div>
 
         <div
@@ -100,7 +119,7 @@ onMounted(() => {
             suffix-title="2025-07-03 09:59:45"
             :data="trafoReadings"
             :calculate="trafoCalculation"
-            :capacity="trafoCapacity"
+            :rest="rest"
           />
 
           <TrafoDataCalculate
@@ -108,10 +127,12 @@ onMounted(() => {
             is-color
             :data="trafoReadings"
             :calculate="trafoCalculation"
-            :capacity="trafoCapacity"
+            :rest="rest"
           />
         </div>
       </div>
     </div>
+
+    <TrafoCustomer :id="trafoId" :capacity="trafoCapacity" />
   </div>
 </template>
