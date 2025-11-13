@@ -146,13 +146,11 @@ const exportToCSV = () => {
           {{ pagination.first + index + 1 }}
         </template>
       </Column>
-      <Column field="name" header="Trafo Name"></Column>
-      <Column field="kapasitas" header="Capacity">
-        <template #body="{ data }">
-          <div>{{ data.kapasitas }} KVA</div>
-        </template>
-      </Column>
-      <Column field="phasa" header="Phase"> </Column>
+      <Column field="number" header="Customer Number"></Column>
+      <Column field="power" header="Power"></Column>
+      <Column field="current" header="Current"> </Column>
+      <Column field="installation" header="Installation"> </Column>
+      <Column field="created_at" header="Created At"> </Column>
       <Column field="action" header="Action"> </Column>
     </DataTable>
   </CardView>
