@@ -36,59 +36,9 @@ function uploadFile() {
   }
 }
 
-const users = ref([
-  { id: 1, name: "Budi", email: "budi@example.com", age: 25 },
-  { id: 2, name: "Siti", email: "siti@example.com", age: 30 },
-  { id: 3, name: "Asep", email: "asep@example.com", age: 22 },
-]);
-
-const exportToCSV = () => {
-  if (!users.value || users.value.length === 0) {
-    alert("Tidak ada data untuk diekspor!");
-    return;
-  }
-
-  const data = users.value;
-  const headers = ["id", "name", "email", "age"];
-  const csvHeaders = headers.join(",");
-
-  const csvRows = data.map((item: any) => {
-    const values = headers.map((header) => {
-      let value = item[header];
-      if (
-        typeof value === "string" &&
-        (value.includes(",") || value.includes('"') || value.includes("\n"))
-      ) {
-        value = `"${value.replace(/"/g, '""')}"`;
-      }
-      return value;
-    });
-    return values.join(",");
-  });
-
-  const finalCsvString = [csvHeaders, ...csvRows].join("\n");
-
-  const blob = new Blob([finalCsvString], {
-    type: "text/csv;charset=utf-8;",
-  });
-
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute(
-    "download",
-    "data_export_" +
-      new Date().toLocaleDateString("id-ID").replace(/\//g, "-") +
-      ".csv"
-  );
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
-};
+function exportFile() {
+  calculationService.exportCsv(props.id);
+}
 </script>
 
 <template>
@@ -116,7 +66,7 @@ const exportToCSV = () => {
           size="small"
           rounded
           label="Export"
-          @click="exportToCSV"
+          @click="exportFile"
         />
       </div>
     </div>

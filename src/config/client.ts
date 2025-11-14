@@ -128,6 +128,59 @@ class BaseClient {
     }
   }
 
+  private async download(
+    method: HttpMethod,
+    endpoint: string,
+    defaultFileName: string,
+    options: RequestOptions = {}
+  ) {
+    const { params, headers, ...rest } = options;
+    const token = getAuth();
+    const url = this.buildUrl(endpoint, params);
+
+    const config: RequestInit = {
+      method,
+      headers: {
+        ...(token ? { Authorization: token } : {}),
+        ...headers,
+      },
+      ...rest,
+    };
+
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      const errorMsg = `Gagal mengunduh: Status ${response.status}, ${errorText}`;
+      usePopup({ type: "error", message: errorMsg });
+      throw new Error(errorMsg);
+    }
+
+    const contentDisposition = response.headers.get("Content-Disposition");
+    let fileName = defaultFileName;
+
+    if (contentDisposition) {
+      const fileNameMatch = contentDisposition.match(/filename="?(.+)"?$/i);
+      if (fileNameMatch && fileNameMatch[1]) {
+        fileName = fileNameMatch[1].trim();
+      }
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(downloadUrl);
+    usePopup({
+      type: "success",
+      message: `File '${fileName}' berhasil diunduh.`,
+    });
+  }
+
   get<T>(endpoint: string, options?: RequestOptions) {
     return this.request<T>("GET", endpoint, undefined, options);
   }
@@ -150,6 +203,10 @@ class BaseClient {
 
   postForm<T>(endpoint: string, body: any, options?: RequestOptions) {
     return this.requestForm<T>(endpoint, body, options);
+  }
+
+  getDownload(endpoint: string, fileName: string, options?: RequestOptions) {
+    return this.download("GET", endpoint, fileName, options);
   }
 }
 

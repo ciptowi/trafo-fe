@@ -111,6 +111,10 @@ class CalculationService {
   async uploadCsv(id: number, capacity: number, file: File) {
     return await calculationApi.uploadCsv(id, capacity, file);
   }
+
+  async exportCsv(id: number) {
+    return await calculationApi.exportCsv(id);
+  }
 }
 
 export const calculationService = new CalculationService();

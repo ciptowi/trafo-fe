@@ -69,6 +69,13 @@ class CalculationApi {
       }
     );
   }
+
+  async exportCsv(id: number) {
+    return await client.getDownload(
+      `/kalkulasi/export-csv/${id}`,
+      `kalkulasi.csv`
+    );
+  }
 }
 
 export const calculationApi = new CalculationApi();
