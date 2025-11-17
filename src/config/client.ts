@@ -90,7 +90,6 @@ class BaseClient {
     const config: RequestInit = {
       method: "POST",
       headers: {
-        "Content-Type": "multipart/form-data",
         ...(token ? { Authorization: token } : {}),
         ...headers,
       },
