@@ -26,7 +26,7 @@ class Mapper {
     // sisa kapasitas
     client.capacity.value = trafo.kapasitas;
     client.rest.capacity = cal.sisa_kap.toFixed(3) + " KVA";
-    client.rest.percent = (cal.sisa_kap / trafo.kapasitas).toFixed(2) + " %";
+    client.rest.percent = (cal.sisa_kap / trafo.kapasitas*100).toFixed(2) + " %";
 
     // history
     client.history.value = [{ label: cal.waktu_kalkulasi, value: "" }];
