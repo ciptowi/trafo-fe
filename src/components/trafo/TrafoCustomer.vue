@@ -7,6 +7,7 @@ import PaginationControl from "../app/PaginationControl.vue";
 import { calculationService } from "../../service/calculation-service";
 import { usePopup } from "../app/dialog-state";
 
+const emit = defineEmits<{ (e: "forecast"): void }>();
 const props = defineProps<{ id: number; capacity: number }>();
 
 const fileInput = ref<InstanceType<typeof HTMLInputElement>>();
@@ -52,6 +53,15 @@ function exportFile() {
       </div>
 
       <div class="flex items-center gap-4">
+        <Button
+          icon="pi pi-chart-line"
+          severity="primary"
+          variant="outlined"
+          size="small"
+          rounded
+          label="Forcast"
+          @click="emit('forecast')"
+        />
         <Button
           icon="pi pi-file-import"
           severity="primary"

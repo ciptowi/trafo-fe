@@ -26,7 +26,8 @@ class Mapper {
     // sisa kapasitas
     client.capacity.value = trafo.kapasitas;
     client.rest.capacity = cal.sisa_kap.toFixed(3) + " KVA";
-    client.rest.percent = (cal.sisa_kap / trafo.kapasitas*100).toFixed(2) + " %";
+    client.rest.percent =
+      ((cal.sisa_kap / trafo.kapasitas) * 100).toFixed(2) + " %";
 
     // history
     client.history.value = [{ label: cal.waktu_kalkulasi, value: "" }];
@@ -114,6 +115,10 @@ class CalculationService {
 
   async exportCsv(id: number) {
     return await calculationApi.exportCsv(id);
+  }
+
+  async forecast(id: number) {
+    return await calculationApi.forecast(id);
   }
 }
 

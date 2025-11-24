@@ -10,6 +10,8 @@ defineProps<{
   data: ReadingRow[];
   calculate: CalculateRow[];
   rest: RestCapacity;
+  forecastDate?: string;
+  forecastValue?: string;
   title?: string;
   suffixTitle?: string;
   class?: HTMLAttributes["class"];
@@ -92,6 +94,20 @@ defineProps<{
             }"
           >
             {{ rest.capacity }} ({{ rest.percent }})
+          </span>
+        </div>
+        <div
+          v-if="forecastDate && forecastValue"
+          class="flex justify-between items-center h-10"
+        >
+          <span>Forecast {{ forecastDate }}</span>
+          <span
+            :class="{
+              'text-blue-600 font-bold': isColor,
+              'bg-blue-100 p-1 rounded': isColor,
+            }"
+          >
+            {{ forecastValue }}
           </span>
         </div>
       </div>

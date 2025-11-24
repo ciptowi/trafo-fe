@@ -14,6 +14,7 @@ import type {
   RestCapacity,
 } from "../types/calculation-type";
 import TrafoCustomer from "../components/trafo/TrafoCustomer.vue";
+import { overlayState } from "../components/app/overlay-state";
 
 const reoute = useRoute();
 
@@ -25,6 +26,7 @@ const rest = reactive<RestCapacity>({
   capacity: "",
   percent: "",
 });
+const forcast = reactive<{ date?: string; value?: string }>({});
 
 const trafoHistory = ref<InformationRow[]>([]);
 
@@ -77,6 +79,14 @@ function getTrafoDetail() {
     });
 }
 
+async function runForecast() {
+  overlayState.show();
+  const rersponse = await calculationService.forecast(trafoId.value);
+  forcast.date = rersponse.data.date;
+  forcast.value = rersponse.data.value.toFixed(3);
+
+  overlayState.hide();
+}
 onMounted(() => {
   getTrafoDetail();
 });
@@ -127,12 +137,18 @@ onMounted(() => {
             is-color
             :data="trafoReadings"
             :calculate="trafoCalculation"
+            :forecast-date="forcast.date"
+            :forecast-value="forcast.value"
             :rest="rest"
           />
         </div>
       </div>
     </div>
 
-    <TrafoCustomer :id="trafoId" :capacity="trafoCapacity" />
+    <TrafoCustomer
+      :id="trafoId"
+      :capacity="trafoCapacity"
+      @forecast="runForecast"
+    />
   </div>
 </template>

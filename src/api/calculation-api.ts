@@ -76,6 +76,12 @@ class CalculationApi {
       `kalkulasi.csv`
     );
   }
+
+  async forecast(id: number) {
+    return await client.get<Res<{ date: string; value: number }>>(
+      `/forecast/hitung/${id}`
+    );
+  }
 }
 
 export const calculationApi = new CalculationApi();
