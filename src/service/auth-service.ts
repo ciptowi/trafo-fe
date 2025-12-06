@@ -12,7 +12,7 @@ class AuthService {
 
       if (result.success && result.data) {
         setAuth(result.data.access_token);
-        router.push({ name: "trafo" });
+        router.push({ name: "dashboard" });
       }
     } catch (error) {
       const e = error as Error;

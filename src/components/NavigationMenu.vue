@@ -7,8 +7,8 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 
 const menuItems = ref<MenuItem[]>([
-  { label: "Dashboard" },
-  { label: "Managemet Meter" },
+  { label: "Dashboard", route: "/dashboard" },
+  { label: "Managemet User", route: "/management-user" },
   { label: "Managemet Trafo", route: "/trafo", class: "p-menuitem-active" },
   { label: "Group", route: "/trafo-group" },
   { label: "Report" },
