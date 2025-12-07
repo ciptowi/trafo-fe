@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { FloatLabel, InputText, Message } from "primevue";
 
-defineProps<{ label: string; name: string; error?: Function }>();
+const props = defineProps<{
+  label: string;
+  name: string;
+  disabled?: boolean;
+  error?: Function;
+}>();
 const model = defineModel<string>({ required: true });
 </script>
 
@@ -9,13 +14,14 @@ const model = defineModel<string>({ required: true });
   <div>
     <FloatLabel variant="on">
       <InputText
-        :id="name"
+        :id="props.name"
         v-model="model"
-        :class="{ 'p-invalid': error && !!error(name) }"
+        :disabled="props.disabled"
+        :class="{ 'p-invalid': error && !!error(props.name) }"
         class="w-full"
         @submit="console.log('as')"
       />
-      <label :for="name">{{ label }}</label>
+      <label :for="props.name">{{ label }}</label>
     </FloatLabel>
     <Message
       v-if="error"
@@ -24,7 +30,7 @@ const model = defineModel<string>({ required: true });
       variant="simple"
       class="h-4"
     >
-      {{ error(name) }}
+      {{ error(props.name) }}
     </Message>
   </div>
 </template>
