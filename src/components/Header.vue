@@ -10,7 +10,9 @@ const router = useRouter();
 const menu = ref<InstanceType<typeof Menu>>();
 const items = computed(() => [
   {
-    label: getUser().toUpperCase(),
+    label:
+      getUser().username.toUpperCase() +
+      ` ${getUser().group_name ? ` - ${getUser().group_name}` : ""}`,
     items: [
       {
         label: "Logout",

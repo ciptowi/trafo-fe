@@ -9,9 +9,10 @@ import NavigationMenu from "../components/NavigationMenu.vue";
 import type { RowTrafoRes } from "../api/trafo-api";
 import type { Combobox } from "../types/global-type";
 import { Button, DataTable, Column } from "primevue";
-import { reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { trafoService } from "../service/trafo-service";
 import { useRouter } from "vue-router";
+import { getUser } from "../utils/auth-storage";
 
 const router = useRouter();
 
@@ -22,6 +23,12 @@ const pagination = reactive({
   first: 0,
   totalRecords: 0,
 });
+
+const userGroup = computed(() =>
+  getUser().group_id
+    ? { id: getUser().group_id || 0, name: getUser().group_name || "" }
+    : null
+);
 
 async function getDataTable(keyword?: string) {
   const result = await trafoService.findAll({
@@ -41,6 +48,13 @@ function eventSearch(keyword?: string) {
   }
   getDataTable(keyword);
 }
+
+onMounted(() => {
+  if (userGroup.value) {
+    group.value = userGroup.value;
+    getDataTable();
+  }
+});
 </script>
 
 <template>
@@ -51,7 +65,7 @@ function eventSearch(keyword?: string) {
     <CardView class="m-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center justify-between w-1/2 gap-2">
-          <div class="w-1/2">
+          <div v-if="!userGroup" class="w-1/2">
             <SelectField
               mounted
               v-model="group"

@@ -63,6 +63,12 @@ onMounted(() => {
 
 <template>
   <CardView>
-    <BarChart v-bind="barChartProps" />
+    <div v-if="!data.length" class="flex items-center justify-center h-42">
+      <div class="text-center">
+        <i class="pi pi-database text-gray-500"></i>
+        <div class="text-gray-500">No Data</div>
+      </div>
+    </div>
+    <BarChart v-else v-bind="barChartProps" />
   </CardView>
 </template>

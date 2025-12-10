@@ -1,16 +1,22 @@
 import { userApi } from "../api/user-api";
+import type { Combobox } from "../types/global-type";
 
 type PaginationArg = { page: number; first: number; totalRecords: number };
-type ModelArg = {
+export type ModelArg = {
   id: number;
   username: string;
+  group: Combobox | null;
   oldPassword: string;
   password: string;
 };
 
 class UserService {
   async create(model: ModelArg) {
-    const param = { username: model.username, password: model.password };
+    const param = {
+      username: model.username,
+      password: model.password,
+      group_id: model.group?.id || null,
+    };
     const result = await userApi.craete(param);
     return result;
   }
@@ -28,7 +34,10 @@ class UserService {
   }
 
   async updateUsername(model: ModelArg) {
-    const param = { username: model.username };
+    const param = {
+      username: model.username,
+      group_id: model.group?.id || null,
+    };
     const result = await userApi.updateUsername(model.id, param);
     return result;
   }

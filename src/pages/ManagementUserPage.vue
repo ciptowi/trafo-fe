@@ -6,16 +6,21 @@ import CardView from "../components/app/CardView.vue";
 import NavigationMenu from "../components/NavigationMenu.vue";
 import TextField from "../components/field/TextField.vue";
 import useValidation from "../utils/zod-validation";
+import SelectField from "../components/field/SelectField.vue";
 import type { RowTrafoRes } from "../api/trafo-api";
 import { DataTable, Column, Dialog } from "primevue";
 import { onMounted, reactive, ref } from "vue";
-import { userService } from "../service/user-service";
+import { userService, type ModelArg } from "../service/user-service";
 import { useConfirmation, usePopup } from "../components/app/dialog-state";
 import { requiredString } from "../utils/zod-helper";
 import { z } from "zod";
 
 type Mode = "add" | "edit" | "password";
-type DataRow = { id: number; username: string };
+type DataRow = {
+  id: number;
+  username: string;
+  group: { id: number; name: string; kodegrup: string } | null;
+};
 
 const visible = ref(false);
 const mode = ref<Mode>("add");
@@ -26,9 +31,10 @@ const pagination = reactive({
   totalRecords: 0,
 });
 
-const formUser = reactive({
+const formUser = reactive<ModelArg>({
   id: 0,
   username: "",
+  group: null,
   oldPassword: "",
   password: "",
 });
@@ -69,6 +75,9 @@ function openDialogForm(dialogMode: Mode, row?: DataRow) {
   mode.value = dialogMode;
   formUser.id = row?.id || 0;
   formUser.username = row?.username || "";
+  formUser.group = row?.group
+    ? { id: row.group.id, name: row.group.name }
+    : null;
   formUser.oldPassword = "";
   formUser.password = "";
 }
@@ -182,7 +191,7 @@ onMounted(() => {
           </template>
         </Column>
         <Column field="username" header="Username"></Column>
-        <Column field="email" header="Email"></Column>
+        <Column field="group.name" header="Group"></Column>
         <Column field="action" header="Action">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
@@ -238,6 +247,13 @@ onMounted(() => {
             name="password"
             :error="validationAdd.getError"
           />
+          <SelectField
+            mounted
+            v-model="formUser.group"
+            use="trafo-group"
+            name="group"
+            label="Group"
+          />
         </template>
 
         <template v-if="mode == 'edit'">
@@ -246,6 +262,13 @@ onMounted(() => {
             label="Username"
             name="username"
             :error="validationEdit.getError"
+          />
+          <SelectField
+            mounted
+            v-model="formUser.group"
+            use="trafo-group"
+            name="group"
+            label="Group"
           />
         </template>
 
