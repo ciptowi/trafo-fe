@@ -25,8 +25,8 @@ class Mapper {
 
   toTrendChart(model: ChartTrend, data: ForecaseVsActual) {
     model.title = "Forecast vs Actual: " + data.name;
-    model.actual = data.forecast.map((d) => ({ x: d.datetime, y: d.value }));
-    model.predicted = data.calculated.map((d) => ({
+    model.predicted = data.forecast.map((d) => ({ x: d.datetime, y: d.value }));
+    model.actual = data.calculated.map((d) => ({
       x: d.datetime,
       y: d.value,
     }));
@@ -47,8 +47,15 @@ class DashboardService {
   }
 
   async forecastVsActual(id: number, model: ChartTrend) {
-    const result = await dashboardApi.forecastVsActual(id);
-    this.mapper.toTrendChart(model, result.data);
+    model.isLoading = true;
+    dashboardApi
+      .forecastVsActual(id)
+      .then((result) => {
+        this.mapper.toTrendChart(model, result.data);
+      })
+      .finally(() => {
+        model.isLoading = false;
+      });
   }
 }
 

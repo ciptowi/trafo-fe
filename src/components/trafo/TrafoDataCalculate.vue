@@ -84,7 +84,7 @@ defineProps<{
       </table>
 
       <div class="border-b border-gray-200 text-sm font-medium">
-        <div class="flex justify-between items-center h-10">
+        <div class="flex justify-between items-center h-10 text-black">
           <span>Sisa Kapasitas Trafo</span>
           <span
             v-if="rest.capacity && rest.percent"
@@ -98,7 +98,7 @@ defineProps<{
         </div>
         <div
           v-if="forecastDate && forecastValue"
-          class="flex justify-between items-center h-10"
+          class="flex justify-between items-center h-10 text-black"
         >
           <span>Forecast {{ forecastDate }}</span>
           <span
@@ -107,7 +107,7 @@ defineProps<{
               'bg-blue-100 p-1 rounded': isColor,
             }"
           >
-            {{ forecastValue }}
+            {{ forecastValue }} KVA
           </span>
         </div>
       </div>
@@ -125,6 +125,7 @@ table {
     font-weight: 600;
     border-top-width: 1px;
     border-bottom-width: 1px;
+    color: #4a5565;
     border-color: #e5e7eb;
     font-size: 0.875rem;
     line-height: 1.25rem;

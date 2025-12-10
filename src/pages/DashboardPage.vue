@@ -9,6 +9,7 @@ import ChartForecastVsActual from "../components/dashboard/ChartForecastVsActual
 import { dashboardService } from "../service/dashboard-service";
 
 const dataChart = reactive<ChartTrend>({
+  isLoading: false,
   title: "",
   actual: [],
   predicted: [],

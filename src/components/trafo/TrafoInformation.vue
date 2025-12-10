@@ -28,7 +28,7 @@ defineProps<{
         <tbody>
           <tr v-for="(row, i) in data" :key="i">
             <td class="text-gray-400">{{ row.label }}</td>
-            <td class="text-right">
+            <td class="text-right text-black">
               <slot name="value" :row="row">{{ row.value }}</slot>
             </td>
           </tr>
