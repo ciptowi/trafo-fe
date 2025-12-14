@@ -249,6 +249,7 @@ onMounted(() => {
           />
           <SelectField
             mounted
+            clearable
             v-model="formUser.group"
             use="trafo-group"
             name="group"
@@ -265,6 +266,7 @@ onMounted(() => {
           />
           <SelectField
             mounted
+            clearable
             v-model="formUser.group"
             use="trafo-group"
             name="group"

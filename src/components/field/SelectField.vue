@@ -8,6 +8,7 @@ const props = defineProps<{
   use: "trafo-group";
   label: string;
   name: string;
+  clearable?: boolean;
   mounted?: boolean;
   error?: Function;
 }>();
@@ -36,12 +37,13 @@ onMounted(() => {
   <div>
     <FloatLabel variant="on">
       <Select
-        :id="name"
         v-model="model"
+        fluid
+        :id="name"
         :name="name"
         :options="options"
         optionLabel="name"
-        fluid
+        :showClear="props.clearable"
         :class="{ 'p-invalid': error && !!error(name) }"
         class="w-full"
       />
