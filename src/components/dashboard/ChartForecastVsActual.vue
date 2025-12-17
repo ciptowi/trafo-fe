@@ -40,6 +40,20 @@ const options = computed<ChartOptions<"line">>(() => ({
     },
   },
   plugins: {
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          let label = context.dataset.label || "";
+          if (label) {
+            label += ": ";
+          }
+          if (context.parsed.y !== null) {
+            label += context.parsed.y.toFixed(2) + " VA";
+          }
+          return label;
+        },
+      },
+    },
     legend: {
       position: "bottom",
     },
